@@ -107,11 +107,7 @@ class UNetDecoder(nn.Module):
 
 # TinyU-Net
 class SkinUNet(nn.Module):
-    """TinyU-Net with args(in_channels, num_classes)."""
-    '''
-    in_channels: The number of input channels
-    num_classes: The number of segmentation classes
-    '''
+   
 
     def __init__(self, in_channels=3, num_classes=2):
         super(SkinUNet, self).__init__()
