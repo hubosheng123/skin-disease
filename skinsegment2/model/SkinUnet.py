@@ -29,14 +29,14 @@ class Conv(nn.Module):
         self.act = self.default_act if act is True else act if isinstance(act, nn.Module) else nn.Identity()
 
     def forward(self, x):
-        return self.act(self.bn(self.conv(x)))
+        return self.act(self.bn(self.conv(x)))  
 
     def forward_fuse(self, x):
         return self.act(self.conv(x))
 
 
 class DWConv(Conv):  # 深度卷积
-    """Depth-wise convolution with args(ch_in, ch_out, kernel, stride, dilation, activation)."""
+    """Depth-wise convolution with args(ch_in, ch_out, kernel, stride, dilation, activation)."""  
 
     def __init__(self, c1, c2, k=1, s=1, d=1, act=True):
         super().__init__(c1, c2, k, s, g=math.gcd(c1, c2), d=d, act=act)
@@ -45,7 +45,7 @@ class DWConv(Conv):  # 深度卷积
 class ECDF(nn.Module):
 
 
-    def __init__(self, c1, c2, N=32, shortcut=True, g=1, e=0.5):
+    def __init__(self, c1, c2, N=32, shortcut=True, g=1, e=0.5):  
         super().__init__()
         self.se_att=ECA_Spatial_Attention(c2)
         self.N = N
@@ -88,34 +88,32 @@ class UNetEncoder(nn.Module):
 
     def forward(self, x):
         x = self.cmrf(x)
-        return self.downsample(x), x
+        return self.downsample(x), x  
 
-
-# Decoder in TinyU-Net
-class UNetDecoder(nn.Module):
+class UNetDecoder(nn.Module):  
     def __init__(self, in_channels, out_channels):
         super(UNetDecoder, self).__init__()
         self.ecdf = ECDF(in_channels, out_channels)
         self.upsample = F.interpolate
 
-    def forward(self, x, skip_connection):
+    def forward(self, x, skip_connection):  
         x = self.upsample(x, scale_factor=2, mode='bicubic', align_corners=False)
         x = torch.cat([x, skip_connection], dim=1)
         x = self.cmrf(x)
         return x
 
 
-# TinyU-Net
-class SkinUNet(nn.Module):
+
+class SkinUNet(nn.Module):  
    
 
     def __init__(self, in_channels=3, num_classes=2):
         super(SkinUNet, self).__init__()
-        in_filters = [192, 384, 768, 1024]
+        in_filters = [192, 384, 768, 1024]  
         out_filters = [64, 128, 256, 512]
 
         self.encoder1 = UNetEncoder(in_channels, 64)
-        self.encoder2 = UNetEncoder(64, 128)
+        self.encoder2 = UNetEncoder(64, 128)  
         self.encoder3 = UNetEncoder(128, 256)
         self.encoder4 = UNetEncoder(256, 512)
 
@@ -131,7 +129,7 @@ class SkinUNet(nn.Module):
         x, skip3 = self.encoder3(x)
         x, skip4 = self.encoder4(x)
 
-        x = self.decoder4(x, skip4)
+        x = self.decoder4(x, skip4)  
         x = self.decoder3(x, skip3)
         x = self.decoder2(x, skip2)
         x = self.decoder1(x, skip1)
